@@ -8,6 +8,7 @@ import java.util.List;
 import stg.base.KeyStateProvider;
 import stg.entity.player.Player;
 import user.player.DefaultPlayer;
+import user.player.reimu.__ReimuPlayer;
 
 /**
  * 玩家选择面板
@@ -103,6 +104,10 @@ public class PlayerSelectPanel extends Panel {
         DefaultPlayer defaultPlayer = new DefaultPlayer(0.0f, -200.0f);
         playerInfos.add(new PlayerInfo("默认玩家", "标准射击角色", defaultPlayer));
         
+        // 添加Reimu玩家
+        __ReimuPlayer reimuPlayer = new __ReimuPlayer(0.0f, -200.0f);
+        playerInfos.add(new PlayerInfo("灵梦", "博丽神社的巫女", reimuPlayer));
+        
         // 这里可以添加更多玩家角色
     }
 
@@ -164,9 +169,18 @@ public class PlayerSelectPanel extends Panel {
     private void handleSelection() {
         if (playerInfos != null && !playerInfos.isEmpty() && selectedIndex < playerInfos.size()) {
             PlayerInfo selectedInfo = playerInfos.get(selectedIndex);
+            Player selectedPlayer = selectedInfo.getPlayer();
+            
+            // 为Reimu玩家设置纹理ID
+            if (selectedPlayer instanceof __ReimuPlayer) {
+                // 注意：这里需要从渲染器获取纹理ID，暂时先设置为-1
+                // 实际使用时需要在Window类中获取纹理ID并传递给这里
+                ((__ReimuPlayer) selectedPlayer).setReimuTextureId(-1);
+            }
+            
             startTransition(() -> {
                 if (callback != null) {
-                    callback.onPlayerSelected(selectedInfo.getPlayer());
+                    callback.onPlayerSelected(selectedPlayer);
                 }
             });
         }

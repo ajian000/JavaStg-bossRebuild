@@ -2,6 +2,7 @@ package user.player.reimu;
 
 import stg.entity.player.Player;
 import stg.render.IRenderer;
+import stg.util.SpriteSheetRenderer;
 
 /**
  * Reimu自机类 - 使用reimu.png精灵表
@@ -15,7 +16,7 @@ public class __ReimuPlayer extends Player {
     private int reimuTextureId; // Reimu精灵表纹理ID
     
     public __ReimuPlayer() {
-        super(0, 0, 5.0f, 2.0f, 20);
+        super(0, 0, 8.0f, 3.0f, 20);
         this.animationFrame = 0;
         this.animationCounter = 0;
         this.currentAnimation = 0; // 默认站立
@@ -23,7 +24,7 @@ public class __ReimuPlayer extends Player {
     }
     
     public __ReimuPlayer(float x, float y) {
-        super(x, y, 5.0f, 2.0f, 20);
+        super(x, y, 8.0f, 3.0f, 20);
         this.animationFrame = 0;
         this.animationCounter = 0;
         this.currentAnimation = 0; // 默认站立
@@ -64,6 +65,14 @@ public class __ReimuPlayer extends Player {
         this.reimuTextureId = textureId;
     }
     
+    /**
+     * 获取Reimu精灵表纹理ID
+     * @return 纹理ID
+     */
+    public int getReimuTextureId() {
+        return reimuTextureId;
+    }
+    
     @Override
     public void render(IRenderer renderer) {
         // 无敌闪烁效果
@@ -83,12 +92,30 @@ public class __ReimuPlayer extends Player {
         float screenX = screenCoords[0];
         float screenY = screenCoords[1];
         
-        // 绘制精灵（使用简化的drawImage方法）
+        // 绘制精灵（使用精灵表裁剪）
         if (reimuTextureId != -1) {
-            renderer.drawImage(
+            // 精灵表参数
+            final int SPRITE_WIDTH = 48;
+            final int SPRITE_HEIGHT = 48;
+            final int SPRITES_PER_ROW = 8;
+            final int SPRITE_SHEET_WIDTH = 384;
+            final int SPRITE_SHEET_HEIGHT = 272;
+            final float SCALE = 1.5f;
+            
+            // 使用精灵表渲染工具类绘制动画帧
+            SpriteSheetRenderer.drawSpriteFrame(
+                renderer,
                 reimuTextureId,
-                screenX - 24, screenY - 24,
-                48, 48
+                screenX,
+                screenY,
+                SPRITE_WIDTH,
+                SPRITE_HEIGHT,
+                SPRITE_SHEET_WIDTH,
+                SPRITE_SHEET_HEIGHT,
+                currentAnimation, // 0: 站立, 1: 左移, 2: 右移
+                animationFrame,
+                SPRITES_PER_ROW,
+                SCALE
             );
         } else {
             //  fallback: 绘制简单的红色圆形
@@ -97,7 +124,10 @@ public class __ReimuPlayer extends Player {
         
         // 低速模式时显示受击判定点
         if (isSlowMode()) {
-            renderer.drawCircle(screenX, screenY, getHitboxRadius(), 1.0f, 1.0f, 1.0f, 1.0f);
+            // TODO: 重写判定点绘制逻辑
+            // 放大判定点，使其更明显
+            float hitboxRadius = getHitboxRadius() * 2.0f;
+            renderer.drawCircle(screenX, screenY, hitboxRadius, 1.0f, 1.0f, 1.0f, 1.0f);
         }
     }
     

@@ -379,6 +379,24 @@ public class GLRenderer implements IRenderer {
 	 */
 	@Override
 	public void drawImage(int textureId, float x, float y, float width, float height) {
+		// 调用带纹理坐标的方法，使用默认坐标（整个纹理）
+		drawImage(textureId, x, y, width, height, 0.0f, 0.0f, 1.0f, 1.0f);
+	}
+
+	/**
+	 * 绘制图片（带纹理坐标）
+	 * @param textureId 纹理ID
+	 * @param x 图片左下角X坐标
+	 * @param y 图片左下角Y坐标
+	 * @param width 图片宽度
+	 * @param height 图片高度
+	 * @param texX 纹理起始X坐标（0-1）
+	 * @param texY 纹理起始Y坐标（0-1）
+	 * @param texWidth 纹理宽度（0-1）
+	 * @param texHeight 纹理高度（0-1）
+	 */
+	@Override
+	public void drawImage(int textureId, float x, float y, float width, float height, float texX, float texY, float texWidth, float texHeight) {
 		if (textureId == -1) {
 			System.err.println("无效的纹理ID");
 			return;
@@ -393,15 +411,19 @@ public class GLRenderer implements IRenderer {
 		// 设置颜色为白色，这样纹理的颜色会正常显示
 		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		
-		// 绘制四边形，调整纹理坐标以修复上下颠倒的问题
+		// 计算纹理坐标，调整上下颠倒的问题
+		float texYTop = texY + texHeight;
+		float texYBottom = texY;
+		
+		// 绘制四边形
 		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glTexCoord2f(0, 1); // 左上角
+		GL11.glTexCoord2f(texX, texYTop); // 左上角
 		GL11.glVertex2f(x, y);
-		GL11.glTexCoord2f(1, 1); // 右上角
+		GL11.glTexCoord2f(texX + texWidth, texYTop); // 右上角
 		GL11.glVertex2f(x + width, y);
-		GL11.glTexCoord2f(1, 0); // 右下角
+		GL11.glTexCoord2f(texX + texWidth, texYBottom); // 右下角
 		GL11.glVertex2f(x + width, y + height);
-		GL11.glTexCoord2f(0, 0); // 左下角
+		GL11.glTexCoord2f(texX, texYBottom); // 左下角
 		GL11.glVertex2f(x, y + height);
 		GL11.glEnd();
 		

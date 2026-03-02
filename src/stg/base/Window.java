@@ -329,6 +329,14 @@ public class Window {
 				// 开始游戏
 					player = selectedPlayer;
 					player.setKeyStateProvider(keyStateProvider);
+					
+					// 为Reimu玩家设置默认纹理ID（在主线程中加载纹理）
+					if (player instanceof user.player.reimu.__ReimuPlayer) {
+						// 暂时设置为-1，在主线程中加载纹理
+						((user.player.reimu.__ReimuPlayer) player).setReimuTextureId(-1);
+						System.out.println("为Reimu玩家设置默认纹理ID: -1");
+					}
+					
 					gamePanel.setPlayer(player);
 					// 设置游戏世界到游戏面板
 					gamePanel.setGameWorld(gameWorld);
@@ -340,6 +348,8 @@ public class Window {
 						selectedStageGroup.start();
 						System.out.println("启动关卡组: " + selectedStageGroup.getDisplayName());
 					}
+					
+					// 启动游戏循环
 					startGameLoop();
 					System.out.println("开始游戏");
 			}
@@ -401,6 +411,21 @@ public class Window {
 		System.out.println("测试播放音效");
 		audioManager.playSound("pageSwitch");
 		System.out.println("测试音效播放完成");
+		
+		// 加载Reimu玩家纹理
+		if (renderer instanceof GLRenderer) {
+			GLRenderer glRenderer = (GLRenderer) renderer;
+			String reimuTexturePath = "resources/images/reimu.png";
+			int reimuTextureId = glRenderer.loadTexture(reimuTexturePath);
+			if (reimuTextureId != -1) {
+				System.out.println("Reimu纹理加载成功，纹理ID: " + reimuTextureId);
+				// 为所有Reimu玩家设置纹理ID
+				// 注意：这里需要在玩家选择后设置，暂时先加载纹理
+			} else {
+				System.err.println("Reimu纹理加载失败");
+			}
+		}
+		
 		System.out.println("面板布局: 左侧=" + sidePanelWidth + ", 中间=" + gamePanelWidth + ", 右侧=" + sidePanelWidth);
 	}
 	

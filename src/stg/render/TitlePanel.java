@@ -80,19 +80,19 @@ public class TitlePanel extends Panel {
 	 * @param renderer 渲染器实例
 	 */
 	public void loadBackgroundTexture(IRenderer renderer) {
-		// 使用绝对路径加载背景图片
-		String backgroundPath = "e:\\Myproject\\Game\\jstg_Team\\JavaStg\\resources\\images\\menu_bg.png";
+		// 使用相对路径加载背景图片
+		String backgroundPath = "resources/images/menu_bg.png";
 		// 也可以尝试使用相对路径
 		String relativePath = "resources/images/menu_bg.png";
 		
-		// 尝试使用绝对路径加载
+		// 尝试使用相对路径加载
 		if (renderer instanceof GLRenderer) {
 			GLRenderer glRenderer = (GLRenderer) renderer;
 			backgroundTextureId = glRenderer.loadTexture(backgroundPath);
 			
-			// 如果绝对路径加载失败，尝试使用相对路径
+			// 如果相对路径加载失败，尝试使用备用路径
 			if (backgroundTextureId == -1) {
-				System.out.println("使用绝对路径加载背景纹理失败，尝试使用相对路径");
+				System.out.println("使用相对路径加载背景纹理失败，尝试使用备用路径");
 				backgroundTextureId = glRenderer.loadTexture(relativePath);
 			}
 			

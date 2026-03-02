@@ -70,6 +70,22 @@ public class GamePanel extends Panel {
 	public void render(IRenderer renderer) {
 		renderBackground(renderer);
 		
+		// 加载Reimu玩家纹理（在主线程中）
+		if (player != null && player instanceof user.player.reimu.__ReimuPlayer) {
+			user.player.reimu.__ReimuPlayer reimuPlayer = (user.player.reimu.__ReimuPlayer) player;
+			if (reimuPlayer != null && reimuPlayer.getReimuTextureId() == -1 && renderer instanceof GLRenderer) {
+				GLRenderer glRenderer = (GLRenderer) renderer;
+				String reimuTexturePath = "resources/images/reimu.png";
+				int reimuTextureId = glRenderer.loadTexture(reimuTexturePath);
+				if (reimuTextureId != -1) {
+					reimuPlayer.setReimuTextureId(reimuTextureId);
+					System.out.println("为Reimu玩家设置纹理ID: " + reimuTextureId);
+				} else {
+					System.err.println("无法加载Reimu纹理");
+				}
+			}
+		}
+		
 		// 渲染敌人
 		if (gameWorld != null) {
 			for (Enemy enemy : gameWorld.getEnemies()) {

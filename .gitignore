@@ -15,5 +15,8 @@ resources/THlib/
 ai_debug/
 
 # 测试相关
-*test*
-*test*/
+**/test/**
+**/*Test*.java
+**/*test*.java
+**/test*/
+**/*test*/

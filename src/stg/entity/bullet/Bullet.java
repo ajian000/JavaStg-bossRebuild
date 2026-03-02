@@ -1,9 +1,10 @@
 package stg.entity.bullet;
 
-import java.awt.*;
+import java.awt.Color;
+
 import stg.entity.base.Obj;
 import stg.util.objectpool.Resettable;
-
+//TODO:需完全重写
 /**
  * 子弹类
  * @date 2026-01-19 使用中心原点坐标

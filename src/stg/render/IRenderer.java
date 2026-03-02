@@ -111,6 +111,20 @@ public interface IRenderer {
 	void drawImage(int textureId, float x, float y, float width, float height);
 
 	/**
+	 * 绘制图片（带纹理坐标）
+	 * @param textureId 纹理ID
+	 * @param x 图片左下角X坐标
+	 * @param y 图片左下角Y坐标
+	 * @param width 图片宽度
+	 * @param height 图片高度
+	 * @param texX 纹理起始X坐标（0-1）
+	 * @param texY 纹理起始Y坐标（0-1）
+	 * @param texWidth 纹理宽度（0-1）
+	 * @param texHeight 纹理高度（0-1）
+	 */
+	void drawImage(int textureId, float x, float y, float width, float height, float texX, float texY, float texWidth, float texHeight);
+
+	/**
 	 * 清理资源
 	 */
 	void cleanup();
