@@ -27,7 +27,7 @@ if ($javaFiles.Count -eq 0) {
 Write-Host "编译Java文件到bin目录..."
 try {
     $classpath = "lib\lwjgl-3.3.2.jar;lib\lwjgl-opengl-3.3.2.jar;lib\lwjgl-openal-3.3.2.jar;lib\lwjgl-glfw-3.3.2.jar;lib\lwjgl-stb-3.3.2.jar"
-    javac -cp "$classpath" -d "$binDir" @($javaFiles.FullName)
+    javac -cp "$classpath" -d "$binDir" $javaFiles.FullName
     Write-Host "编译成功!"
 } catch {
     Write-Host "编译失败: $_"

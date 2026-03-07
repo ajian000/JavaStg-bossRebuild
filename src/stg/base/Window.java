@@ -380,6 +380,7 @@ public class Window {
 		// 为游戏面板创建坐标系，基于游戏面板的尺寸
 		coordinateSystem = new CoordinateSystem(gamePanelWidth, TOTAL_HEIGHT);
 		stg.entity.base.Obj.setSharedCoordinateSystem(coordinateSystem);
+		stg.entity.player.Player.setSharedCoordinateSystem(coordinateSystem);
 		System.out.println("坐标系初始化: 宽度=" + gamePanelWidth + " 高度=" + TOTAL_HEIGHT);
 		
 		// 初始化默认玩家
