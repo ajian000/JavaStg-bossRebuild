@@ -1,7 +1,6 @@
 package user.bullet;
 
 import java.awt.Color;
-
 import stg.entity.bullet.Bullet;
 import stg.util.objectpool.Pooled;
 
