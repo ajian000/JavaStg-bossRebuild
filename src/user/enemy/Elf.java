@@ -3,9 +3,9 @@ package user.enemy;
 import java.awt.Color;
 
 import stg.core.GameWorld;
-import stg.entity.bullet.Bullet;
 import stg.entity.enemy.Enemy;
 import stg.render.IRenderer;
+import user.bullet.SimpleDownBullet;
 
 /**
  * 精灵敌人类 - 使用精灵图中的第一个敌人
@@ -51,13 +51,13 @@ public class Elf extends Enemy {
             float bulletSize = 8.0f;
             Color bulletColor = Color.RED;
             
-            // 创建子弹，从敌人位置发射，竖直向下
-            Bullet bullet = new Bullet(getX(), getY(), 0, bulletSpeed, bulletSize, bulletColor);
+            // 创建子弹，从屏幕中心发射，竖直向下
+            SimpleDownBullet bullet = new SimpleDownBullet(0, 0, bulletSpeed, bulletSize, bulletColor);
             bullet.setPlayerBullet(false); // 标记为敌人子弹
             
             // 添加到游戏世界
             world.addEnemyBullet(bullet);
-            System.out.println("Elf fired bullet at (" + getX() + ", " + getY() + ")");
+            System.out.println("Elf fired bullet at (0, 0) (screen center)");
         } else {
             System.out.println("GameWorld is null, cannot fire bullet");
         }
@@ -156,13 +156,6 @@ public class Elf extends Enemy {
         // 调试信息
         System.out.println("Rendering Elf at (" + getX() + ", " + getY() + "), textureId: " + textureId);
         
-        // 转换为屏幕坐标，检查敌人是否在屏幕内
-        requireCoordinateSystem();
-        float[] screenCoords = toScreenCoords(getX(), getY());
-        float screenX = screenCoords[0];
-        float screenY = screenCoords[1];
-        System.out.println("Screen coordinates: (" + screenX + ", " + screenY + "), size: " + getSize());
-        
         // 使用纹理渲染
         if (textureId != -1) {
             // 使用Obj类的纹理渲染方法，这样可以正确渲染图片中的特定区域
@@ -177,6 +170,15 @@ public class Elf extends Enemy {
 
         // 渲染生命值条
         renderHealthBar(renderer);
+    }
+    
+    /**
+     * 在屏幕中渲染敌人
+     * @param renderer 渲染器
+     */
+    @Override
+    public void renderOnScreen(IRenderer renderer) {
+        render(renderer);
     }
 
     /**
@@ -193,5 +195,48 @@ public class Elf extends Enemy {
     @Override
     protected void onTaskEnd() {
         // 空实现，不需要特殊行为
+    }
+    
+    /**
+     * 更新敌人逻辑
+     * @param canvasWidth 画布宽度
+     * @param canvasHeight 画布高度
+     */
+    @Override
+    public void update(int canvasWidth, int canvasHeight) {
+        super.update(canvasWidth, canvasHeight);
+        
+        // 处理边界反弹逻辑
+        float x = getX();
+        float vx = getVx();
+        
+        // 计算屏幕边界
+        float leftBound = -canvasWidth / 2.0f + getSize();
+        float rightBound = canvasWidth / 2.0f - getSize();
+        
+        // 碰到左边界，向右移动
+        if (x <= leftBound && vx < 0) {
+            setVx(2.0f);
+            setX(leftBound);
+        }
+        // 碰到右边界，向左移动
+        else if (x >= rightBound && vx > 0) {
+            setVx(-2.0f);
+            setX(rightBound);
+        }
+    }
+    
+    /**
+     * 重置对象状态
+     * 用于对象池回收和重用时
+     */
+    @Override
+    public void resetState() {
+        super.resetState();
+        // 重置Elf特有的属性
+        size = ENEMY_SIZE;
+        color = ENEMY_COLOR;
+        // 重置纹理ID
+        textureId = -1;
     }
 }

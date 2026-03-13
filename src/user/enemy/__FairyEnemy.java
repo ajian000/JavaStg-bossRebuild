@@ -1,9 +1,10 @@
 package user.enemy;
 
 import java.awt.Color;
+
 import stg.entity.base.Obj;
 import stg.entity.enemy.Enemy;
-import user.bullet.SimpleBullet;
+import user.bullet.SimpleDownBullet;
 
 public class __FairyEnemy extends Enemy {
     private static final float FAIRY_SIZE = 20.0f;
@@ -32,13 +33,11 @@ public class __FairyEnemy extends Enemy {
 
     private void shoot() {
         float bulletSpeed = 4.0f;
-        float angle = (float) Math.PI / 2;
         
-        SimpleBullet bullet = Obj.create(SimpleBullet.class,
+        SimpleDownBullet bullet = Obj.create(SimpleDownBullet.class,
             getX(),
             getY(),
-            (float) (bulletSpeed * Math.cos(angle)),
-            (float) (bulletSpeed * Math.sin(angle)),
+            bulletSpeed,
             5.0f,
             Color.RED
         );

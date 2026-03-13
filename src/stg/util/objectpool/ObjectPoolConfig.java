@@ -59,7 +59,7 @@ public class ObjectPoolConfig {
         
         // 注册用户定义的子弹类
         registerPool(manager, "user.bullet.DefaultPlayerMainBullet", 50, 200);
-        registerPool(manager, "user.bullet.SimpleBullet", 100, 500);
+        registerPool(manager, "user.bullet.SimpleDownBullet", 100, 500);
         
         // 注册用户定义的敌人类
         registerPool(manager, "user.enemy.DefaultEnemy", 10, 50);
@@ -220,9 +220,9 @@ public class ObjectPoolConfig {
             return clazz.getConstructor(float.class, float.class).newInstance(0.0f, 0.0f);
         } else if (className.contains("DefaultPlayerMainBullet")) {
             return clazz.getConstructor(float.class, float.class).newInstance(0.0f, 0.0f);
-        } else if (className.contains("SimpleBullet")) {
+        } else if (className.contains("SimpleDownBullet")) {
             return clazz.getConstructor(float.class, float.class, float.class, float.class, float.class, java.awt.Color.class)
-                .newInstance(0.0f, 0.0f, 0.0f, 0.0f, 5.0f, java.awt.Color.RED);
+                .newInstance(0.0f, 0.0f, 0.0f, 1.0f, 5.0f, java.awt.Color.RED);
         } else if (className.contains("Bullet")) {
             return clazz.getConstructor(float.class, float.class).newInstance(0.0f, 0.0f);
         } else if (className.contains("Enemy")) {

@@ -1,6 +1,7 @@
 package user.bullet;
 
 import java.awt.Color;
+
 import stg.entity.bullet.Bullet;
 import stg.entity.bullet.BulletSpriteSheet;
 
@@ -20,6 +21,19 @@ public class SimpleDownBullet extends Bullet {
      */
     public SimpleDownBullet(float x, float y, float speed, float size, Color color) {
         super(x, y, 0, speed, size, color); // vx=0, vy=speed 确保竖直向下
+    }
+    
+    /**
+     * 构造函数（与Bullet类兼容的6参数版本）
+     * @param x 初始X坐标
+     * @param y 初始Y坐标
+     * @param vx X方向速度（会被忽略，始终设为0）
+     * @param vy Y方向速度（会被取绝对值作为向下速度）
+     * @param size 子弹大小
+     * @param color 子弹颜色
+     */
+    public SimpleDownBullet(float x, float y, float vx, float vy, float size, Color color) {
+        super(x, y, 0, Math.abs(vy), size, color); // vx=0, vy=绝对值确保竖直向下
     }
     
     /**
@@ -72,5 +86,17 @@ public class SimpleDownBullet extends Bullet {
         float speed = getSpeed();
         setVx(0);
         setVy(Math.abs(speed));
+    }
+    
+    /**
+     * 重置对象状态
+     * 用于对象池回收和重用时
+     */
+    @Override
+    public void resetState() {
+        super.resetState();
+        // 确保子弹始终保持竖直向下
+        setVx(0);
+        setVy(Math.abs(getVy()));
     }
 }

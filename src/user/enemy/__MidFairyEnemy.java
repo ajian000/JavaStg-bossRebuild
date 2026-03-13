@@ -3,7 +3,7 @@ package user.enemy;
 import java.awt.Color;
 import stg.entity.base.Obj;
 import stg.entity.enemy.Enemy;
-import user.bullet.SimpleBullet;
+import user.bullet.SimpleDownBullet;
 
 public class __MidFairyEnemy extends Enemy {
     private static final float MID_FAIRY_SIZE = 30.0f;
@@ -51,13 +51,12 @@ public class __MidFairyEnemy extends Enemy {
         int bulletCount = 5;
         
         for (int i = 0; i < bulletCount; i++) {
-            float angle = (float) Math.PI / 2 + (i - bulletCount / 2) * 0.2f;
+            float offsetX = (i - bulletCount / 2) * 10.0f;
             
-            SimpleBullet bullet = Obj.create(SimpleBullet.class,
-                getX(),
+            SimpleDownBullet bullet = Obj.create(SimpleDownBullet.class,
+                getX() + offsetX,
                 getY(),
-                (float) (bulletSpeed * Math.cos(angle)),
-                (float) (bulletSpeed * Math.sin(angle)),
+                bulletSpeed,
                 6.0f,
                 Color.ORANGE
             );

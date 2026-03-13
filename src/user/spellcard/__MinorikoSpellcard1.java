@@ -3,7 +3,7 @@ package user.spellcard;
 import java.awt.Color;
 import stg.entity.enemy.Boss;
 import stg.entity.enemy.EnemySpellcard;
-import user.bullet.SimpleBullet;
+import user.bullet.SimpleDownBullet;
 
 public class __MinorikoSpellcard1 extends EnemySpellcard {
     private int shootTimer = 0;
@@ -40,13 +40,12 @@ public class __MinorikoSpellcard1 extends EnemySpellcard {
         int bulletCount = 12;
         
         for (int i = 0; i < bulletCount; i++) {
-            float angle = (float) Math.PI / 2 + (i * 2 * (float) Math.PI / bulletCount) + angleOffset;
+            float offsetX = (i - bulletCount / 2) * 10.0f;
             
-            SimpleBullet bullet = new SimpleBullet(
-                boss.getX(),
+            SimpleDownBullet bullet = new SimpleDownBullet(
+                boss.getX() + offsetX,
                 boss.getY(),
-                (float) (bulletSpeed * Math.cos(angle)),
-                (float) (bulletSpeed * Math.sin(angle)),
+                bulletSpeed,
                 6.0f,
                 Color.ORANGE
             );
