@@ -1,7 +1,7 @@
 # Laser 类文档
 
 ## 类概述
-`Laser` 是所有激光的基类，定义了激光的基本行为和属性，包括预警机制、碰撞检测等功能。
+`Laser` 是所有激光的基类，定义了激光的基本行为和属性，包括预警机制、碰撞检测、OpenGL 渲染支持等功能。
 
 ## 成员变量
 
@@ -105,38 +105,59 @@
 - 预警结束后激活激光
 
 ### 5. render(Graphics g)
-**用途**：渲染激光
+**用途**：渲染激光（Java2D版本）
 **参数**：
 - `g` (Graphics)：图形上下文
 **返回值**：无
+**说明**：
+- 渲染预警线或实际激光
+- 启用抗锯齿以获得更好的视觉效果
 
-### 6. renderWarningLine(Graphics2D g2d)
-**用途**：渲染预警线
+### 6. render(IRenderer renderer)
+**用途**：渲染激光（支持OpenGL）
+**参数**：
+- `renderer` (IRenderer)：渲染器
+**返回值**：无
+
+### 7. renderWarningLine(Graphics2D g2d)
+**用途**：渲染预警线（Java2D版本）
 **参数**：
 - `g2d` (Graphics2D)：图形上下文
 **返回值**：无
 
-### 7. renderLaser(Graphics2D g2d)
-**用途**：渲染实际激光
+### 8. renderLaser(Graphics2D g2d)
+**用途**：渲染实际激光（Java2D版本）
 **参数**：
 - `g2d` (Graphics2D)：图形上下文
 **返回值**：无
 
-### 8. checkCollision(float px, float py)
+### 9. renderWarningLineGL(IRenderer renderer)
+**用途**：渲染预警线（OpenGL版本）
+**参数**：
+- `renderer` (IRenderer)：渲染器
+**返回值**：无
+
+### 10. renderLaserGL(IRenderer renderer)
+**用途**：渲染实际激光（OpenGL版本）
+**参数**：
+- `renderer` (IRenderer)：渲染器
+**返回值**：无
+
+### 11. checkCollision(float px, float py)
 **用途**：检查点是否在激光碰撞体内
 **参数**：
 - `px` (float)：点的X坐标
 - `py` (float)：点的Y坐标
 **返回值**：boolean - 是否碰撞
 
-### 9. isOutOfBounds(int width, int height)
+### 12. isOutOfBounds(int width, int height)
 **用途**：检查激光是否超出边界
 **参数**：
 - `width` (int)：画布宽度
 - `height` (int)：画布高度
 **返回值**：boolean - 是否超出边界
 
-### 10. pointToLineDistance(float px, float py, float lx, float ly, float angle, float len)
+### 13. pointToLineDistance(float px, float py, float lx, float ly, float angle, float len)
 **用途**：计算点到线段的距离
 **参数**：
 - `px` (float)：点X坐标
@@ -147,24 +168,23 @@
 - `len` (float)：线段长度
 **返回值**：float - 点到线段的距离
 
-### 11. reset()
+### 14. reset()
 **用途**：重置激光状态
 **参数**：无
 **返回值**：无
+**说明**：
+- 重置预警计时器
+- 重置激活状态
+- 重置可见性
+- 重新初始化行为参数
 
-### 12. setGameCanvas(GameCanvas gameCanvas)
-**用途**：设置画布引用
-**参数**：
-- `gameCanvas` (GameCanvas)：画布引用
-**返回值**：无
-
-### 13. onTaskStart()
+### 15. onTaskStart()
 **用途**：任务开始时触发的方法，用于处理开局对话等
 **参数**：无
 **返回值**：无
 **说明**：抽象方法，子类必须实现
 
-### 14. onTaskEnd()
+### 16. onTaskEnd()
 **用途**：任务结束时触发的方法，用于处理boss击破对话和道具掉落
 **参数**：无
 **返回值**：无
