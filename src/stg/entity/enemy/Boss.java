@@ -1,27 +1,36 @@
 package stg.entity.enemy;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
+
+import stg.entity.base.Obj;
+import stg.render.IRenderer;
 
 /**
  * Boss基类
  * 管理Boss的入场、退场和符卡系统
- * @since 2026-02-14
+ * @since 2026-03-17
  */
-public abstract class Boss extends Enemy {
-    protected List<EnemySpellcard> spellcards;
-    protected EnemySpellcard currentSpellcard;
+public abstract class Boss extends Obj implements IBoss {
+    protected List<ISpellcard> spellcards;
+    protected ISpellcard currentSpellcard;
     protected int currentPhase;
     protected int maxPhase;
-    protected boolean isEntering;
-    protected boolean isExiting;
+    protected BossState state;
     protected int enterFrameCount;
     protected int exitFrameCount;
     protected static final int ENTER_DURATION = 120; // 入场动画持续120帧
     protected static final int EXIT_DURATION = 90; // 退场动画持续90帧
+    
+    // 精灵图资源
+    protected int spriteTextureId;
+    protected float spriteX;
+    protected float spriteY;
+    protected float spriteWidth;
+    protected float spriteHeight;
+    protected float imgWidth;
+    protected float imgHeight;
     
     /**
      * 构造函数
@@ -31,15 +40,15 @@ public abstract class Boss extends Enemy {
      * @param color 颜色
      */
     public Boss(float x, float y, float size, Color color) {
-        super(x, y, 0, 0, size, color, 1); // 传递1作为初始生命值，因为父类需要
+        super(x, y, 0, 0, size, color);
         this.spellcards = new ArrayList<>();
         this.currentSpellcard = null;
         this.currentPhase = 0;
         this.maxPhase = 0;
-        this.isEntering = true;
-        this.isExiting = false;
+        this.state = BossState.ENTERING;
         this.enterFrameCount = 0;
         this.exitFrameCount = 0;
+        this.spriteTextureId = -1;
     }
     
     /**
@@ -49,50 +58,123 @@ public abstract class Boss extends Enemy {
     protected abstract void initSpellcards();
     
     /**
-     * 更新Boss状态
+     * 开始Boss
      */
     @Override
-    public void update() {
-        // 只更新位置，不调用super.update避免生命值检查
-        frame++;
-        onUpdate();
-        onMove();
-        x += vx;
-        y += vy;
-        
-        if (isEntering) {
-            updateEnterLogic();
-            return;
-        }
-        
-        if (isExiting) {
-            updateExitLogic();
-            return;
-        }
-        
-        // 更新当前符卡
-        if (currentSpellcard != null && currentSpellcard.isActive()) {
-            currentSpellcard.update();
-            
-            // 检查符卡是否被击败
-            if (currentSpellcard.isDefeated()) {
-                currentSpellcard.end();
-                startNextSpellcard();
-            }
-        } else if (currentSpellcard == null) {
-            // 如果没有当前符卡，开始第一个符卡
-            startNextSpellcard();
-        }
+    public void start() {
+        // 初始化符卡
+        initSpellcards();
+        maxPhase = spellcards.size();
     }
     
     /**
      * 更新Boss状态
-     * @param canvasWidth 画布宽度（兼容参数，不使用）
-     * @param canvasHeight 画布高度（兼容参数，不使用）
      */
     @Override
-    public void update(int canvasWidth, int canvasHeight) {
-        update(); // 调用无参数版本
+    public void update() {
+        super.update();
+        
+        switch (state) {
+            case ENTERING:
+                updateEnterLogic();
+                break;
+            case ACTIVE:
+                updateActiveLogic();
+                break;
+            case EXITING:
+                updateExitLogic();
+                break;
+            default:
+                break;
+        }
+    }
+    
+    /**
+     * 渲染Boss
+     * @param renderer 渲染器
+     */
+    @Override
+    public void render(IRenderer renderer) {
+        if (!isActive()) return;
+        
+        // 优化：避免重复的坐标系统检查
+        if (!isCoordinateSystemInitialized()) return;
+        
+        // 如果有精灵图，使用精灵图渲染
+        if (spriteTextureId != -1) {
+            // 使用 IRenderer 接口的 drawImage 方法来渲染精灵图
+            requireCoordinateSystem();
+            float[] screenCoords = toScreenCoords(getX(), getY());
+            float screenX = screenCoords[0];
+            float screenY = screenCoords[1];
+            float renderSize = getSize();
+            
+            // 计算纹理坐标（归一化到0-1范围）
+            float texCoordX = spriteX / imgWidth;
+            float texCoordY = spriteY / imgHeight;
+            float texWidth = spriteWidth / imgWidth;
+            float texHeight = spriteHeight / imgHeight;
+            
+            // 使用 IRenderer 接口的方法来渲染
+            renderer.drawImage(spriteTextureId, screenX - renderSize/2, screenY - renderSize/2, renderSize, renderSize, texCoordX, texCoordY, texWidth, texHeight);
+        } else {
+            // 否则使用默认渲染
+            super.render(renderer);
+        }
+        
+        // 渲染生命值条
+        renderHealthBar(renderer);
+    }
+    
+    /**
+     * 受到伤害
+     * @param damage 伤害值
+     */
+    @Override
+    public void takeDamage(int damage) {
+        // 将伤害传递给当前符卡
+        if (currentSpellcard != null) {
+            currentSpellcard.takeDamage(damage);
+        }
+    }
+    
+    /**
+     * 获取Boss状态
+     * @return Boss状态
+     */
+    @Override
+    public BossState getState() {
+        return state;
+    }
+    
+    /**
+     * 获取当前符卡
+     * @return 当前符卡
+     */
+    @Override
+    public ISpellcard getCurrentSpellcard() {
+        return currentSpellcard;
+    }
+    
+    /**
+     * 加载精灵图资源
+     * @param path 图片路径
+     * @param x 素材X坐标
+     * @param y 素材Y坐标
+     * @param width 素材宽度
+     * @param height 素材高度
+     */
+    @Override
+    public void loadSprite(String path, float x, float y, float width, float height) {
+        this.spriteTextureId = loadTexture(path, x, y, width, height);
+        this.spriteX = x;
+        this.spriteY = y;
+        this.spriteWidth = width;
+        this.spriteHeight = height;
+        
+        // 假设图片大小与素材大小相同，实际应用中可能需要调整
+        this.imgWidth = width;
+        this.imgHeight = height;
     }
     
     /**
@@ -101,22 +183,38 @@ public abstract class Boss extends Enemy {
     protected void updateEnterLogic() {
         enterFrameCount++;
         
-        // 入场动画：从屏幕上方移动到指定位置
+        // 入场动画：从屏幕上方可见位置移动到指定位置
         float targetY = getY();
-        // 从游戏逻辑坐标系的顶部边界上方进入
-        stg.entity.base.Obj.requireCoordinateSystem();
-        stg.util.CoordinateSystem cs = stg.entity.base.Obj.getSharedCoordinateSystem();
+        // 从游戏逻辑坐标系的顶部边界附近进入，确保可见
+        requireCoordinateSystem();
+        stg.util.CoordinateSystem cs = getSharedCoordinateSystem();
         float topBound = cs.getTopBound();
-        float enterStartY = topBound + 50; // 从顶部边界上方50像素处开始入场
+        float enterStartY = topBound + 10; // 从顶部边界下方10像素处开始入场，确保可见
         
-        setY(enterStartY - (enterStartY - targetY) * (float)enterFrameCount / ENTER_DURATION);
+        setY(enterStartY + (targetY - enterStartY) * (float)enterFrameCount / ENTER_DURATION);
         
         if (enterFrameCount >= ENTER_DURATION) {
-            isEntering = false;
-            // 初始化符卡
-            initSpellcards();
-            maxPhase = spellcards.size();
+            state = BossState.ACTIVE;
             // 开始第一个符卡
+            startNextSpellcard();
+        }
+    }
+    
+    /**
+     * 更新活跃逻辑
+     */
+    protected void updateActiveLogic() {
+        // 更新当前符卡
+        if (currentSpellcard != null) {
+            currentSpellcard.update();
+            
+            // 检查符卡是否被击败
+            if (currentSpellcard.isDefeated()) {
+                currentSpellcard.end();
+                startNextSpellcard();
+            }
+        } else {
+            // 如果没有当前符卡，开始第一个符卡
             startNextSpellcard();
         }
     }
@@ -143,36 +241,68 @@ public abstract class Boss extends Enemy {
         
         if (currentPhase > spellcards.size()) {
             // 所有符卡都已完成，开始退场
-            startExit();
+            state = BossState.EXITING;
             return;
         }
         
         // 获取并开始当前符卡
         currentSpellcard = spellcards.get(currentPhase - 1);
-        currentSpellcard.start();
-    }
-    
-    /**
-     * 开始退场
-     */
-    protected void startExit() {
-        isExiting = true;
+        currentSpellcard.start(this);
     }
     
     /**
      * 添加符卡
      * @param spellcard 符卡
      */
-    protected void addSpellcard(EnemySpellcard spellcard) {
+    protected void addSpellcard(ISpellcard spellcard) {
         spellcards.add(spellcard);
     }
     
     /**
-     * 获取当前符卡
-     * @return 当前符卡
+     * 渲染生命值条
+     * @param renderer 渲染器
      */
-    public EnemySpellcard getCurrentSpellcard() {
-        return currentSpellcard;
+    protected void renderHealthBar(IRenderer renderer) {
+        // 如果有当前符卡，显示符卡的生命值
+        if (currentSpellcard != null) {
+            // 计算生命值条的位置和大小
+            float bossX = getX();
+            float bossY = getY();
+            float bossSize = getSize();
+            
+            // 优化：避免重复计算
+            float halfBossSize = bossSize * 1.5f;
+            int barWidth = (int)(bossSize * 3); // 符卡生命值条更宽
+            int barHeight = 6; // 符卡生命值条更高
+            int barX = (int)(bossX - halfBossSize);
+            int barY = (int)(bossY - bossSize - 15);
+
+            // 背景
+            renderer.drawRect(barX, barY, barWidth, barHeight, 0.5f, 0.5f, 0.5f, 1.0f);
+
+            // 生命值
+            float hpPercent = (float)currentSpellcard.getHp() / currentSpellcard.getMaxHp();
+            // 优化：避免负数和超过1的百分比
+            hpPercent = Math.max(0.0f, Math.min(1.0f, hpPercent));
+            int hpBarWidth = (int)(barWidth * hpPercent);
+            
+            // 符卡阶段使用不同颜色
+            if (currentSpellcard.isSpellcardPhase()) {
+                renderer.drawRect(barX, barY, hpBarWidth, barHeight, 0.0f, 0.0f, 1.0f, 1.0f);
+            } else {
+                renderer.drawRect(barX, barY, hpBarWidth, barHeight, 1.0f, 0.0f, 0.0f, 1.0f);
+            }
+            
+            // 显示符卡名称
+            if (currentSpellcard.isSpellcardPhase()) {
+                String spellcardName = currentSpellcard.getName();
+                float fontSize = 12.0f;
+                float textX = barX;
+                float textY = barY - 5.0f;
+                float[] color = {1.0f, 1.0f, 1.0f, 1.0f}; // 白色
+                renderer.drawText(spellcardName, textX, textY, fontSize, color);
+            }
+        }
     }
     
     /**
@@ -192,87 +322,29 @@ public abstract class Boss extends Enemy {
     }
     
     /**
-     * 检查是否正在入场
-     * @return 是否正在入场
-     */
-    public boolean isEntering() {
-        return isEntering;
-    }
-    
-    /**
-     * 检查是否正在退场
-     * @return 是否正在退场
-     */
-    public boolean isExiting() {
-        return isExiting;
-    }
-    
-    /**
-     * 任务开始时触发的方法
+     * 获取X坐标
+     * @return X坐标
      */
     @Override
-    protected void onTaskStart() {
-        // 空实现，由子类根据需要重写
+    public float getX() {
+        return super.getX();
     }
     
     /**
-     * 受到伤害
-     * @param damage 伤害值
+     * 获取Y坐标
+     * @return Y坐标
      */
     @Override
-    public void takeDamage(int damage) {
-        // 将伤害传递给当前符卡
-        if (currentSpellcard != null && currentSpellcard.isActive()) {
-            currentSpellcard.takeDamage(damage);
-        }
+    public float getY() {
+        return super.getY();
     }
     
     /**
-     * 渲染生命值条
-     * @param g 图形上下文
-     * @param screenX 屏幕X坐标
-     * @param screenY 屏幕Y坐标
+     * 获取大小
+     * @return 大小
      */
     @Override
-    protected void renderHealthBar(Graphics2D g, float screenX, float screenY) {
-        // 如果有当前符卡，显示符卡的生命值
-        if (currentSpellcard != null && currentSpellcard.isActive()) {
-            int barWidth = (int)(getSize() * 3); // 符卡生命值条更宽
-            int barHeight = 6; // 符卡生命值条更高
-            int barX = (int)(screenX - getSize() * 1.5f);
-            int barY = (int)(screenY - getSize() - 15);
-
-            // 背景
-            g.setColor(Color.GRAY);
-            g.fillRect(barX, barY, barWidth, barHeight);
-
-            // 生命值
-            float hpPercent = (float)currentSpellcard.getHp() / currentSpellcard.getMaxHp();
-            // 符卡阶段使用不同颜色
-            if (currentSpellcard.isSpellcardPhase()) {
-                g.setColor(Color.BLUE);
-            } else {
-                g.setColor(Color.RED);
-            }
-            g.fillRect(barX, barY, (int)(barWidth * hpPercent), barHeight);
-            
-            // 显示符卡名称
-            if (currentSpellcard.isSpellcardPhase()) {
-                g.setColor(Color.WHITE);
-                g.setFont(new Font("Monospace", Font.PLAIN, 12));
-                g.drawString(currentSpellcard.getName(), barX, barY - 5);
-            }
-        } else {
-            // 没有符卡时显示默认生命值条
-            super.renderHealthBar(g, screenX, screenY);
-        }
-    }
-    
-    /**
-     * 任务结束时触发的方法
-     */
-    @Override
-    protected void onTaskEnd() {
-        // 空实现，由子类根据需要重写
+    public float getSize() {
+        return super.getSize();
     }
 }
