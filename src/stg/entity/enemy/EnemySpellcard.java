@@ -8,7 +8,7 @@ package stg.entity.enemy;
 public abstract class EnemySpellcard implements ISpellcard {
     protected String name; // 符卡名称，空字符串表示非符卡阶段
     protected int phase; // 对应阶段
-    protected Boss boss; // 所属Boss
+    protected IBoss boss; // 所属Boss
     protected boolean active; // 是否激活
     protected int duration; // 符卡持续时间（帧数）
     protected int currentFrame; // 当前帧数
@@ -22,7 +22,7 @@ public abstract class EnemySpellcard implements ISpellcard {
      * @param boss 所属Boss
      * @param hp 阶段生命值
      */
-    public EnemySpellcard(String name, int phase, Boss boss, int hp) {
+    public EnemySpellcard(String name, int phase, IBoss boss, int hp) {
         this.name = name;
         this.phase = phase;
         this.boss = boss;
@@ -41,7 +41,7 @@ public abstract class EnemySpellcard implements ISpellcard {
      * @param hp 阶段生命值
      * @param duration 符卡持续时间（帧数）
      */
-    public EnemySpellcard(String name, int phase, Boss boss, int hp, int duration) {
+    public EnemySpellcard(String name, int phase, IBoss boss, int hp, int duration) {
         this(name, phase, boss, hp);
         this.duration = duration;
     }
@@ -133,7 +133,7 @@ public abstract class EnemySpellcard implements ISpellcard {
      * 获取所属Boss
      * @return 所属Boss
      */
-    public Boss getBoss() {
+    public IBoss getBoss() {
         return boss;
     }
     
