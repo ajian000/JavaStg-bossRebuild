@@ -69,4 +69,16 @@ public interface IBoss {
      * @return 大小
      */
     float getSize();
+    
+    /**
+     * 获取游戏世界引用
+     * @return 游戏世界引用
+     */
+    stg.core.GameWorld getGameWorld();
+    
+    /**
+     * 设置X方向速度
+     * @param vx X方向速度
+     */
+    void setVx(float vx);
 }

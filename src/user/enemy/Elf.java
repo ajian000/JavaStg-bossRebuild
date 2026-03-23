@@ -63,75 +63,15 @@ public class Elf extends Enemy {
 
     /**
      * 加载纹理
+     * @param renderer 渲染器实例
      * @return 纹理ID
      */
-    private int loadTexture() {
-        // 直接使用GL11来加载纹理，确保在同一个OpenGL上下文中加载
-        int texId = -1;
-        
-        try (org.lwjgl.system.MemoryStack stack = org.lwjgl.system.MemoryStack.stackPush()) {
-            java.nio.IntBuffer widthBuffer = stack.mallocInt(1);
-            java.nio.IntBuffer heightBuffer = stack.mallocInt(1);
-            java.nio.IntBuffer channelsBuffer = stack.mallocInt(1);
-            
-            // 尝试从文件系统直接读取
-            java.nio.file.Path filePath = java.nio.file.Paths.get(IMAGE_PATH);
-            java.nio.ByteBuffer image;
-            
-            if (!java.nio.file.Files.exists(filePath)) {
-                // 如果文件不存在，尝试从类路径读取
-                // 从类路径读取图片
-                java.io.InputStream inputStream = getClass().getClassLoader().getResourceAsStream(IMAGE_PATH);
-                if (inputStream == null) {
-                    System.err.println("图片文件不存在: " + IMAGE_PATH);
-                    return -1;
-                }
-                
-                // 读取输入流到字节数组
-                byte[] bytes = inputStream.readAllBytes();
-                inputStream.close();
-                
-                // 分配内存并填充数据
-                java.nio.ByteBuffer buffer = org.lwjgl.system.MemoryUtil.memAlloc(bytes.length);
-                buffer.put(bytes);
-                buffer.flip();
-                
-                // 加载图片
-                image = org.lwjgl.stb.STBImage.stbi_load_from_memory(buffer, widthBuffer, heightBuffer, channelsBuffer, 4);
-                org.lwjgl.system.MemoryUtil.memFree(buffer);
-            } else {
-                // 从文件系统直接读取
-                image = org.lwjgl.stb.STBImage.stbi_load(IMAGE_PATH, widthBuffer, heightBuffer, channelsBuffer, 4);
-            }
-            
-            if (image == null) {
-                System.err.println("加载图片失败: " + org.lwjgl.stb.STBImage.stbi_failure_reason());
-                return -1;
-            }
-            
-            // 创建纹理
-            texId = org.lwjgl.opengl.GL11.glGenTextures();
-            org.lwjgl.opengl.GL11.glBindTexture(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, texId);
-            
-            // 设置纹理参数
-            org.lwjgl.opengl.GL11.glTexParameteri(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER, org.lwjgl.opengl.GL11.GL_LINEAR);
-            org.lwjgl.opengl.GL11.glTexParameteri(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER, org.lwjgl.opengl.GL11.GL_LINEAR);
-            
-            // 保存宽度和高度值
-            int imgWidth = widthBuffer.get();
-            int imgHeight = heightBuffer.get();
-            
-            // 上传纹理数据
-            org.lwjgl.opengl.GL11.glTexImage2D(org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, org.lwjgl.opengl.GL11.GL_RGBA, imgWidth, imgHeight, 0, org.lwjgl.opengl.GL11.GL_RGBA, org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE, image);
-            
-            // 释放图片数据
-            org.lwjgl.stb.STBImage.stbi_image_free(image);
-        } catch (Exception e) {
-            System.err.println("加载纹理失败: " + e.getMessage());
-            e.printStackTrace();
+    private int loadTexture(IRenderer renderer) {
+        // 使用GLRenderer的loadTexture方法加载纹理
+        if (renderer instanceof stg.render.GLRenderer) {
+            return ((stg.render.GLRenderer) renderer).loadTexture(IMAGE_PATH);
         }
-        
-        return texId;
+        return -1;
     }
 
     /**
@@ -145,12 +85,11 @@ public class Elf extends Enemy {
 
             // 延迟加载纹理，直到第一次渲染时
             if (textureId == -1) {
-                textureId = loadTexture();
+                textureId = loadTexture(renderer);
             }
 
             // 使用纹理渲染
             if (textureId != -1) {
-                // 使用Obj类的纹理渲染方法，这样可以正确渲染图片中的特定区域
                 // 计算纹理坐标（归一化到0-1范围）
                 float texCoordX1 = TEX_X / IMG_WIDTH;
                 float texCoordY1 = TEX_Y / IMG_HEIGHT;

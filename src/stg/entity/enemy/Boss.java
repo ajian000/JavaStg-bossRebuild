@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import stg.entity.base.Obj;
+import stg.render.IRenderable;
 import stg.render.IRenderer;
 
 /**
@@ -12,7 +12,7 @@ import stg.render.IRenderer;
  * 管理Boss的入场、退场和符卡系统
  * @since 2026-03-17
  */
-public abstract class Boss extends Obj implements IBoss {
+public abstract class Boss extends Enemy implements IBoss, IRenderable {
     protected List<ISpellcard> spellcards;
     protected ISpellcard currentSpellcard;
     protected int currentPhase;
@@ -40,7 +40,7 @@ public abstract class Boss extends Obj implements IBoss {
      * @param color 颜色
      */
     public Boss(float x, float y, float size, Color color) {
-        super(x, y, 0, 0, size, color);
+        super(x, y, 0, 0, size, color, 100); // 100作为默认生命值
         this.spellcards = new ArrayList<>();
         this.currentSpellcard = null;
         this.currentPhase = 0;
@@ -124,6 +124,23 @@ public abstract class Boss extends Obj implements IBoss {
         
         // 渲染生命值条
         renderHealthBar(renderer);
+    }
+    
+    /**
+     * 获取渲染层级
+     * @return 渲染层级
+     */
+    @Override
+    public int getRenderLayer() {
+        return 4; // Boss渲染层级，低于玩家的5
+    }
+    
+    /**
+     * 在屏幕中渲染Boss
+     * @param renderer 渲染器
+     */
+    public void renderOnScreen(IRenderer renderer) {
+        render(renderer);
     }
     
     /**
@@ -322,29 +339,21 @@ public abstract class Boss extends Obj implements IBoss {
     }
     
     /**
-     * 获取X坐标
-     * @return X坐标
+     * 获取游戏世界引用
+     * @return 游戏世界引用
      */
     @Override
-    public float getX() {
-        return super.getX();
+    public stg.core.GameWorld getGameWorld() {
+        return super.getGameWorld();
     }
     
     /**
-     * 获取Y坐标
-     * @return Y坐标
+     * 设置X方向速度
+     * @param vx X方向速度
      */
     @Override
-    public float getY() {
-        return super.getY();
+    public void setVx(float vx) {
+        super.setVx(vx);
     }
-    
-    /**
-     * 获取大小
-     * @return 大小
-     */
-    @Override
-    public float getSize() {
-        return super.getSize();
-    }
+
 }

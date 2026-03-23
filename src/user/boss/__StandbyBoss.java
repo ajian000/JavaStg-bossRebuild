@@ -18,4 +18,12 @@ public class __StandbyBoss extends Boss {
         addSpellcard(new __StandbySpellcard2(this));
         addSpellcard(new __StandbySpellcard3(this));
     }
+
+    @Override
+    protected void onTaskStart() {
+    }
+
+    @Override
+    protected void onTaskEnd() {
+    }
 }

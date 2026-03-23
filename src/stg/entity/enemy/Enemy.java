@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 
 import stg.core.GameWorld;
 import stg.entity.base.Obj;
+import stg.render.IRenderable;
 import stg.render.IRenderer;
 import stg.util.objectpool.Resettable;
 
@@ -14,7 +15,7 @@ import stg.util.objectpool.Resettable;
  * @date 2026-01-19
  * @date 2026-02-20 支持对象池管理
  */
-public abstract class Enemy extends Obj implements Resettable {
+public abstract class Enemy extends Obj implements Resettable, IRenderable {
 	protected int hp; // 生命值
 	protected int maxHp; // 最大生命值
 	protected GameWorld gameWorld; // 游戏世界引用
@@ -77,26 +78,43 @@ public abstract class Enemy extends Obj implements Resettable {
 	}
 
 	/**
-	 * 渲染敌人（IRenderer版本，支持OpenGL）
-	 * @param renderer 渲染器
-	 */
-	@Override
-	public void render(IRenderer renderer) {
-		if (!isActive()) return;
+     * 渲染敌人（IRenderer版本，支持OpenGL）
+     * @param renderer 渲染器
+     */
+    @Override
+    public void render(IRenderer renderer) {
+        if (!isActive()) return;
 
-		// 转换为屏幕坐标
-		requireCoordinateSystem();
-		float[] screenCoords = toScreenCoords(getX(), getY());
-		float screenX = screenCoords[0];
-		float screenY = screenCoords[1];
+        // 转换为屏幕坐标
+        requireCoordinateSystem();
+        float[] screenCoords = toScreenCoords(getX(), getY());
+        float screenX = screenCoords[0];
+        float screenY = screenCoords[1];
 
-		// 绘制敌人主体
-		Color color = getColor();
-		renderer.drawCircle(screenX, screenY, getSize(), color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, color.getAlpha() / 255.0f);
+        // 绘制敌人主体
+        Color color = getColor();
+        renderer.drawCircle(screenX, screenY, getSize(), color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, color.getAlpha() / 255.0f);
 
-		// 渲染生命值条
-		renderHealthBar(renderer);
-	}
+        // 渲染生命值条
+        renderHealthBar(renderer);
+    }
+    
+    /**
+     * 获取渲染层级
+     * @return 渲染层级
+     */
+    @Override
+    public int getRenderLayer() {
+        return 4; // 敌人渲染层级，低于玩家的5
+    }
+    
+    /**
+     * 在屏幕中渲染敌人
+     * @param renderer 渲染器
+     */
+    public void renderOnScreen(IRenderer renderer) {
+        render(renderer);
+    }
 
 	/**
 	 * 渲染生命值条 - 使用屏幕坐标

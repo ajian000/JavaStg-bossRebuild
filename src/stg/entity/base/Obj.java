@@ -3,8 +3,6 @@ package stg.entity.base;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import org.lwjgl.opengl.GL11;
-
 import stg.render.IRenderable;
 import stg.render.IRenderer;
 import stg.util.CoordinateSystem;
@@ -275,36 +273,14 @@ public abstract class Obj implements IRenderable {
         float screenX = screenCoords[0];
         float screenY = screenCoords[1];
         
-        // 启用纹理和混合
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
-        
-        // 设置颜色为白色，这样纹理的颜色会正常显示
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        
         // 计算纹理坐标（归一化到0-1范围）
         float texCoordX1 = texX / imgWidth;
         float texCoordY1 = texY / imgHeight;
-        float texCoordX2 = (texX + texWidth) / imgWidth;
-        float texCoordY2 = (texY + texHeight) / imgHeight;
+        float texWidthNorm = texWidth / imgWidth;
+        float texHeightNorm = texHeight / imgHeight;
         
-        // 绘制四边形，调整纹理坐标以修复上下颠倒的问题
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glTexCoord2f(texCoordX1, texCoordY2); // 左上角
-        GL11.glVertex2f(screenX - size/2, screenY - size/2);
-        GL11.glTexCoord2f(texCoordX2, texCoordY2); // 右上角
-        GL11.glVertex2f(screenX + size/2, screenY - size/2);
-        GL11.glTexCoord2f(texCoordX2, texCoordY1); // 右下角
-        GL11.glVertex2f(screenX + size/2, screenY + size/2);
-        GL11.glTexCoord2f(texCoordX1, texCoordY1); // 左下角
-        GL11.glVertex2f(screenX - size/2, screenY + size/2);
-        GL11.glEnd();
-        
-        // 禁用纹理和混合
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_BLEND);
+        // 使用IRenderer接口绘制图片，避免直接操作OpenGL状态
+        renderer.drawImage(textureId, screenX - size/2, screenY - size/2, size, size, texCoordX1, texCoordY1, texWidthNorm, texHeightNorm);
     }
 
     /**

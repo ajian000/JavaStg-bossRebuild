@@ -20,4 +20,12 @@ public class __MinorikoBoss extends Boss {
         addSpellcard(new __MinorikoNonSpellcard2(this));
         addSpellcard(new __MinorikoSpellcard2(this));
     }
+
+    @Override
+    protected void onTaskStart() {
+    }
+
+    @Override
+    protected void onTaskEnd() {
+    }
 }

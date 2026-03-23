@@ -1,20 +1,13 @@
 package stg.render;
 
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
-
-/**
- * OpenGL渲染器实现
- * 基于LWJGL的OpenGL渲染器
- * @since 2026-02-23
- * @author JavaSTG Team
- */
-import java.util.ArrayList;
-import java.util.List;
 
 public class GLRenderer implements IRenderer {
 	/** 窗口宽度 */
@@ -180,35 +173,27 @@ public class GLRenderer implements IRenderer {
 			
 			// 确保在模型视图矩阵模式下
 			GL11.glMatrixMode(GL11.GL_MODELVIEW);
-			checkGLError("设置模型视图矩阵模式");
 			
 			// 禁用纹理，确保使用颜色绘制
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			checkGLError("禁用纹理");
 			
 			// 启用混合
 			GL11.glEnable(GL11.GL_BLEND);
-			checkGLError("启用混合");
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			checkGLError("设置混合函数");
 			
 			// 设置颜色
 			GL11.glColor4f(r, g, b, a);
-			checkGLError("设置颜色");
 			
 			// 绘制矩形
 			GL11.glBegin(GL11.GL_QUADS);
-			checkGLError("开始绘制矩形");
 			GL11.glVertex2f(x, y);
 			GL11.glVertex2f(x + width, y);
 			GL11.glVertex2f(x + width, y + height);
 			GL11.glVertex2f(x, y + height);
 			GL11.glEnd();
-			checkGLError("结束绘制矩形");
 			
 			// 恢复之前的矩阵模式
 			GL11.glMatrixMode(previousMatrixMode);
-			checkGLError("恢复矩阵模式");
 		} catch (Exception e) {
 		}
 	}
@@ -232,33 +217,25 @@ public class GLRenderer implements IRenderer {
 			
 			// 确保在模型视图矩阵模式下
 			GL11.glMatrixMode(GL11.GL_MODELVIEW);
-			checkGLError("设置模型视图矩阵模式");
 			
 			// 禁用纹理，确保使用颜色绘制
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			checkGLError("禁用纹理");
 			
 			// 启用混合
 			GL11.glEnable(GL11.GL_BLEND);
-			checkGLError("启用混合");
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			checkGLError("设置混合函数");
 			
 			// 设置颜色
 			GL11.glColor4f(r, g, b, a);
-			checkGLError("设置颜色");
 			
 			// 绘制线条
 			GL11.glBegin(GL11.GL_LINES);
-			checkGLError("开始绘制线条");
 			GL11.glVertex2f(x1, y1);
 			GL11.glVertex2f(x2, y2);
 			GL11.glEnd();
-			checkGLError("结束绘制线条");
 			
 			// 恢复之前的矩阵模式
 			GL11.glMatrixMode(previousMatrixMode);
-			checkGLError("恢复矩阵模式");
 		} catch (Exception e) {
 		}
 	}
@@ -281,25 +258,19 @@ public class GLRenderer implements IRenderer {
 			
 			// 确保在模型视图矩阵模式下
 			GL11.glMatrixMode(GL11.GL_MODELVIEW);
-			checkGLError("设置模型视图矩阵模式");
 			
 			// 禁用纹理，确保使用颜色绘制
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			checkGLError("禁用纹理");
 			
 			// 启用混合
 			GL11.glEnable(GL11.GL_BLEND);
-			checkGLError("启用混合");
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			checkGLError("设置混合函数");
 			
 			// 设置颜色
 			GL11.glColor4f(r, g, b, a);
-			checkGLError("设置颜色");
 			
 			// 绘制圆形
 			GL11.glBegin(GL11.GL_TRIANGLE_FAN);
-			checkGLError("开始绘制圆形");
 			int segments = 32;
 			GL11.glVertex2f(x, y);
 			for (int i = 0; i <= segments; i++) {
@@ -309,11 +280,9 @@ public class GLRenderer implements IRenderer {
 				GL11.glVertex2f(vx, vy);
 			}
 			GL11.glEnd();
-			checkGLError("结束绘制圆形");
 			
 			// 恢复之前的矩阵模式
 			GL11.glMatrixMode(previousMatrixMode);
-			checkGLError("恢复矩阵模式");
 		} catch (Exception e) {
 		}
 	}
@@ -548,23 +517,17 @@ public class GLRenderer implements IRenderer {
 			
 			// 确保在模型视图矩阵模式下
 			GL11.glMatrixMode(GL11.GL_MODELVIEW);
-			checkGLError("设置模型视图矩阵模式");
 			
 			// 启用纹理和混合
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
-			checkGLError("启用纹理");
 			GL11.glEnable(GL11.GL_BLEND);
-			checkGLError("启用混合");
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			checkGLError("设置混合函数");
 			
 			// 绑定纹理
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
-			checkGLError("绑定纹理");
 			
 			// 设置颜色为白色，这样纹理的颜色会正常显示
 			GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-			checkGLError("设置颜色");
 			
 			// 计算纹理坐标，调整上下颠倒的问题
 			float texYTop = texY + texHeight;
@@ -572,7 +535,6 @@ public class GLRenderer implements IRenderer {
 			
 			// 绘制四边形
 			GL11.glBegin(GL11.GL_QUADS);
-			checkGLError("开始绘制四边形");
 			GL11.glTexCoord2f(texX, texYTop); // 左上角
 			GL11.glVertex2f(x, y);
 			GL11.glTexCoord2f(texX + texWidth, texYTop); // 右上角
@@ -582,15 +544,12 @@ public class GLRenderer implements IRenderer {
 			GL11.glTexCoord2f(texX, texYBottom); // 左下角
 			GL11.glVertex2f(x, y + height);
 			GL11.glEnd();
-			checkGLError("结束绘制四边形");
 			
 			// 恢复之前的矩阵模式
 			GL11.glMatrixMode(previousMatrixMode);
-			checkGLError("恢复矩阵模式");
 			
 			// 禁用纹理（可选，根据需要）
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			checkGLError("禁用纹理");
 		} catch (Exception e) {
 		}
 	}

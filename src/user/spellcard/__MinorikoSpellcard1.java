@@ -35,7 +35,7 @@ public class __MinorikoSpellcard1 extends EnemySpellcard {
     }
 
     private void shoot() {
-        Boss boss = getBoss();
+        stg.entity.enemy.IBoss boss = getBoss();
         float bulletSpeed = 2.5f;
         int bulletCount = 12;
         

@@ -28,7 +28,7 @@ public class __MinorikoNonSpellcard2 extends EnemySpellcard {
 
     @Override
     protected void updateLogic() {
-        Boss boss = getBoss();
+        stg.entity.enemy.IBoss boss = getBoss();
         
         moveTimer++;
         if (moveTimer >= 60) {
@@ -46,7 +46,7 @@ public class __MinorikoNonSpellcard2 extends EnemySpellcard {
     }
 
     private void shoot() {
-        Boss boss = getBoss();
+        stg.entity.enemy.IBoss boss = getBoss();
         float bulletSpeed = 3.5f;
         int bulletCount = 6;
         
