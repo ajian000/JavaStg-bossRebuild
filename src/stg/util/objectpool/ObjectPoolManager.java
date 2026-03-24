@@ -42,6 +42,9 @@ public class ObjectPoolManager {
      * @param pool 对象池实例
      */
     public <T> void registerPool(Class<T> type, ObjectPool<T> pool) {
+        if (type == null || pool == null) {
+            throw new IllegalArgumentException("Type and pool cannot be null");
+        }
         poolMap.put(type, pool);
     }
     
@@ -64,6 +67,9 @@ public class ObjectPoolManager {
      * @return 是否存在
      */
     public boolean hasPool(Class<?> type) {
+        if (type == null) {
+            return false;
+        }
         return poolMap.containsKey(type);
     }
     
@@ -99,12 +105,29 @@ public class ObjectPoolManager {
                     @Override
                     public T create() {
                         try {
-                            // 使用默认参数创建对象
-                            return type.getConstructor(float.class, float.class).newInstance(0.0f, 0.0f);
+                            // 尝试使用默认无参构造函数
+                            try {
+                                return type.getConstructor().newInstance();
+                            } catch (NoSuchMethodException e) {
+                                // 尝试使用两个float参数的构造函数
+                                try {
+                                    return type.getConstructor(float.class, float.class).newInstance(0.0f, 0.0f);
+                                } catch (NoSuchMethodException e2) {
+                                    // 尝试使用一个float参数的构造函数
+                                    try {
+                                        return type.getConstructor(float.class).newInstance(0.0f);
+                                    } catch (NoSuchMethodException e3) {
+                                        // 尝试使用一个int参数的构造函数
+                                        try {
+                                            return type.getConstructor(int.class).newInstance(0);
+                                        } catch (NoSuchMethodException e4) {
+                                            throw new RuntimeException("No suitable constructor found for " + type.getName());
+                                        }
+                                    }
+                                }
+                            }
                         } catch (Exception e) {
-                            // 如果创建失败，返回 null
-                            System.err.println("Failed to create object for " + type.getName() + ": " + e.getMessage());
-                            return null;
+                            throw new RuntimeException("Failed to create object for " + type.getName(), e);
                         }
                     }
                 },
@@ -132,6 +155,7 @@ public class ObjectPoolManager {
      * @param <T> 对象类型
      * @param object 要回收的对象
      */
+    @SuppressWarnings("unchecked")
     public <T> void release(T object) {
         if (object == null) {
             return;

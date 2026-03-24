@@ -73,6 +73,10 @@ public class ConcurrentLinkedObjectPool<T> implements ObjectPool<T> {
     
     @Override
     public void release(T object) {
+        if (object == null) {
+            throw new IllegalArgumentException("Object cannot be null");
+        }
+        
         // 检查对象是否可重置
         if (object instanceof Resettable) {
             try {
@@ -80,6 +84,7 @@ public class ConcurrentLinkedObjectPool<T> implements ObjectPool<T> {
             } catch (Exception e) {
                 // 重置失败，记录异常但继续
                 System.err.println("Failed to reset object state: " + e.getMessage());
+                e.printStackTrace();
             }
         }
         
